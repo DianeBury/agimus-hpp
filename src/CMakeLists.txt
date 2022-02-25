@@ -35,7 +35,7 @@ OMNIIDL_INCLUDE_DIRECTORIES(
 INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/src)
 
 MAKE_DIRECTORY(${CMAKE_BINARY_DIR}/src/hpp/agimus_idl)
-FOREACH(IDL server discretization point-cloud)
+FOREACH(IDL server discretization point-cloud field-of-view)
   GENERATE_IDL_CPP (hpp/agimus_idl/${IDL} ${CMAKE_SOURCE_DIR}/idl/hpp/agimus_idl
     HEADER_SUFFIX -idl.hh)
   GENERATE_IDL_PYTHON (${IDL} ${CMAKE_SOURCE_DIR}/idl/hpp/agimus_idl
@@ -59,6 +59,12 @@ GENERATE_IDL_CPP_IMPL (hpp/agimus_idl/discretization ${CMAKE_SOURCE_DIR}/idl/hpp
   HH_SUFFIX -idl.hh)
 
 GENERATE_IDL_CPP_IMPL (hpp/agimus_idl/point-cloud ${CMAKE_SOURCE_DIR}/idl/hpp/agimus_idl
+  ARGUMENTS
+  -Wbguard_prefix=hpp_agimus_idl
+  -Wbinc_prefix=hpp/agimus_idl
+  HH_SUFFIX -idl.hh)
+
+GENERATE_IDL_CPP_IMPL (hpp/agimus_idl/field-of-view ${CMAKE_SOURCE_DIR}/idl/hpp/agimus_idl
   ARGUMENTS
   -Wbguard_prefix=hpp_agimus_idl
   -Wbinc_prefix=hpp/agimus_idl
@@ -100,6 +106,7 @@ IF(BUILD_HPP_PLUGIN)
     server.cc
     discretization.cc
     point-cloud.cc
+    field-of-view.cc
     ${ALL_IDL_CPP_STUBS}
     ${ALL_IDL_CPP_IMPL_STUBS}
     )
