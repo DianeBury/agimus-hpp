@@ -73,6 +73,9 @@ namespace hpp {
 			 value_type resolution, const vector_t& configuration,
 			 value_type timeOut,
 			 bool newPointCloud);
+      /// Remove the octree attached to octreeFrame
+      /// This also removes the octree in the GUI
+      void removeOctree(const std::string& octreeFrame);
       /// Set bounds on distance of points to sensor
       /// Points at a distance outside this interval are ignored.
       void setDistanceBounds(value_type min, value_type max);
@@ -111,7 +114,6 @@ namespace hpp {
         objectPlanMargin_ = margin;
       }
 
-
       /// Shut down ROS
       ~PointCloud();
     private:
@@ -130,6 +132,8 @@ namespace hpp {
       (const OcTreePtr_t& octree, const std::string& octreeFrame);
       bool displayOctree(const OcTreePtr_t& octree,
 			 const std::string& octreeFrame);
+      /// Remove the octree in the GUI
+      bool hideOctree(const std::string& octreeFrame);
       ProblemSolverPtr_t problemSolver_;
       bool waitingForData_;
       boost::mutex mutex_;

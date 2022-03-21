@@ -32,17 +32,39 @@
 namespace hpp {
   namespace agimus {
 
-    FieldOfView::FieldOfView(const ProblemSolverPtr_t& ps):
-      problemSolver_ (ps)
+    FieldOfView::FieldOfView(
+                    const ProblemSolverPtr_t& ps,
+                    value_type horizontalFOV,
+                    value_type verticalFOV,
+                    std::string opticalFrame,
+                    std::string groupCameraLink,
+                    std::string cameraLink
+                    ):
+      problemSolver_ (ps),
+      horizontalFOV_ (horizontalFOV),
+      verticalFOV_ (verticalFOV),
+      opticalFrame_ (opticalFrame),
+      groupCameraLink_ (groupCameraLink),
+      cameraLink_ (cameraLink)
       {}
 
-    
-      void FieldOfView::featureToTetahedrontPts()
+      void FieldOfView::featureToTetahedrontPts(
+                Transform3f oMt,
+                value_type size,
+                value_type margin,
+                value_type sizeMargin
+                )
       {
 
       }
 
-      bool FieldOfView::featureVisible()
+      bool FieldOfView::featureVisible(
+              std::string featureName,
+              Transform3f oMt,
+              value_type size,
+              value_type margin,
+              value_type sizeMargin,
+              )
       {
         bool visible = false;
         return visible;
@@ -56,10 +78,29 @@ namespace hpp {
 
       bool FieldOfView::clogged()
       {
-        bool clogged = false;
-        return clogged;
+        // make sure the geometry is updated
+        for(auto fg : featureGroups_) {
+          int nVisible = numberVisibleFeature(fg);
+          if (nVisible < fg->n_visibility_threshold) {
+            // not enough visibility
+            return true;
+          }
+        }
+        return false;
       }
 
+      bool FieldOfView::clogged(const FeatureGroupPtr_t& fg)
+      {
+        for(auto feature : fg) {
+
+        }
+        return false;
+      }
+
+      int FieldOfView::numberVisibleFeature(const FeatureGroupPtr_t& fg)
+      {
+        
+      }
 
   } // namespace agimus
 } // namespace hpp

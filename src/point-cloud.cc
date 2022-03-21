@@ -119,8 +119,16 @@ namespace hpp {
         ROS_ERROR_STREAM("Timeout reached while waiting for topic " << topic);
         return false;
       }
+
       // Express point cloud in octreeFrame frame
       movePointCloud(octreeFrame, sensorFrame, configuration);
+
+      // dont build octree if there is zero point in point cloud
+      if (pointsInLinkFrame_.rows() == 0) {
+        ROS_INFO_STREAM("Point cloud has zero points. No octree is build.");
+        removeOctree(octreeFrame);
+        return true;
+      }
 
       // build octree
       hpp::fcl::OcTreePtr_t octree(hpp::fcl::makeOctree(pointsInLinkFrame_,
@@ -288,6 +296,16 @@ namespace hpp {
       }
     }
 
+    void PointCloud::removeOctree(const std::string& octreeFrame)
+    {
+      const DevicePtr_t& robot (problemSolver_->robot());
+      std::string name(octreeFrame + std::string("/octree"));
+      if (robot->geomModel().existGeometryName(name)) {
+	      robot->geomModel().removeGeometryObject(name);
+      }
+      hideOctree(octreeFrame);
+    }
+
     void PointCloud::attachOctreeToRobot
     (const OcTreePtr_t& octree, const std::string& octreeFrame)
     {
@@ -298,9 +316,7 @@ namespace hpp {
       // Add a GeometryObject to the GeomtryModel
       ::pinocchio::Frame pinOctreeFrame(robot->model().frames[of.index()]);
       // Before adding octree, remove previously inserted one
-      if (robot->geomModel().existGeometryName(name)) {
-	      robot->geomModel().removeGeometryObject(name);
-      }
+      removeOctree(octreeFrame);
       ::pinocchio::GeometryObject octreeGo
 	        (name,std::numeric_limits<FrameIndex>::max(), pinOctreeFrame.parent,
 	        octree, Transform3f::Identity());
@@ -360,10 +376,35 @@ namespace hpp {
       return true;
     }
 
+    bool PointCloud::hideOctree
+    (const std::string& octreeFrame)
+    {
+      std::string prefix("robot/");
+      // Connect to gepetto-gui without raising exception
+      gepetto::viewer::corba::connect(0x0, true);
+      gepetto::corbaserver::GraphicalInterface_var gui
+	(gepetto::viewer::corba::gui());
+      std::string nodeName(prefix + octreeFrame + std::string("/octree"));
+      try {
+	// If node already exists, remove it
+	if (gui->nodeExists(nodeName.c_str())){
+	  gui->deleteNode(nodeName.c_str(), true);
+	}
+      } catch (const gepetto::Error& exc) {
+	throw std::runtime_error(exc.msg);
+      }
+      return true;
+    }
+
 #else
     bool PointCloud::displayOctree
     (const OcTreePtr_t& /*octree*/, const std::string& /*octreeFrame*/,
      const Transform3f& /*Moctree*/)
+    {
+      return true;
+    }
+
+    bool PointCloud::hideOctree(const std::string& /*octreeFrame*/)
     {
       return true;
     }

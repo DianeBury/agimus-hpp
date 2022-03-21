@@ -76,6 +76,8 @@ module hpp {
       void setObjectPlanMargin(in double margin)
         raises (Error);
 
+      // Remove the existing octree from the given frame if it exists
+      void removeOctree(in string octreeFrame) raises (Error);
       /// Set bounds on distance of points to sensor
       /// Points at a distance outside this interval are ignored.
       void setDistanceBounds(in double min, in double max) raises(Error);

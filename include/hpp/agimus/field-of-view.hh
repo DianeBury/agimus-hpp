@@ -41,33 +41,32 @@ namespace hpp {
 
     typedef std::vector<Triangle> Tetahedron;
 
-    class Feature
+    struct Feature
     {
-    public:
       Feature(std::string& name, value_type size):
         name(name), size(size) {}
 
       std::string name;
       value_type size;
-    }; // class Feature
+    }; // struct Feature
 
-    class FeatureGroup
+
+    struct FeatureGroup
     {
-    private:
       std::vector<Feature> features;
-      int n_visibility_thr;
+      int n_visibility_threshold;
       value_type depth_margin;
       value_type size_margin;
-
-    public:
       FeatureGroup(int n_visibility_thr, value_type depth_margin,
                    value_type size_margin)
           : n_visibility_thr(n_visibility_thr),
           depth_margin(depth_margin),
           size_margin(size_margin)
         {};
-    }; // class FeatureGroup
-    typedef std::vector <FeatureGroup> FeatureGroups_t;
+    }; // struct FeatureGroup
+    typedef std::make_shared<FeatureGroup> FeatureGroupPtr_t;
+    typedef std::vector <FeatureGroupPtr_t> FeatureGroups_t;
+
 
     class FieldOfView
     {
@@ -78,7 +77,19 @@ namespace hpp {
         ptr->init(ptr);
         return ptr;
       }
-      
+      int numberVisibleFeature(const FeatureGroupPtr_t& fg);
+      bool clogged();
+
+      void addFeatureGroup(const FeatureGroupPtr_t& fg)
+      {
+        featureGroups_.push_back(fg);
+      }
+
+      void resetFeatureGroups()
+      {
+        featureGroups_.clear();
+      }
+
     private:
       // Constructor
       FieldOfView(const ProblemSolverPtr_t& ps);
@@ -88,10 +99,10 @@ namespace hpp {
       void featureToTetahedrontPts();
       bool featureVisible();
       bool robotClogsFieldOfView();
-      bool clogged();
 
       ProblemSolverPtr_t problemSolver_;
       bool display_;
+      FeatureGroups_t featureGroups_;
 
     }; // class FieldOfView
   } // namespace agimus
